@@ -1,0 +1,26 @@
+apiVersion : v1
+kind : Replicaset
+metadata :
+  - name : "myrs1"
+
+spec :
+    replicas : 1
+
+selector :
+   match Expressions :
+       - dc  In  south
+       - region In IN
+   matchLabels :
+       - app : web
+
+template :
+   metadata :
+    - name : " myrs1"
+      labels  :
+          dc : south
+          region : IN
+          app : web
+     spec:
+         containers :
+         - name : "myrs1"
+           image : "httpd"
