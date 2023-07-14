@@ -1,0 +1,67 @@
+
+
+
+Replication Controller   :   
+        kubernetes controller is the one that relaunch when pod deleted
+
+
+=> apply command is used to recreate after changes in yml file
+
+=> selector is used in RC  such that it select that  particular pod from all existing pods  and monitor it to keep available to clients with mentioned replicas 
+
+=> template is used to mention  the details of pod so that it recreate the pod when is is down with the details in template
+
+
+3. myrc.yml
+
+apiVersion: v1
+kind: ReplicationController
+metadata: 
+  name: myrc1
+spec:
+  replicas: 2
+  selector:
+    dc: IN
+  template:
+    metadata:
+      name: "mypod"
+      labels:
+       dc: IN
+    spec:
+      containers:
+      - name: "myrc1"
+        image: "httpd"
+
+
+kubectl create -f myrc.yml
+
+     
+minikube ssh    ---->  to login into shell from CLI instaed in VM the shell is called cluster or svc
+
+route -n   -->  Describe the Ip connected with 0.0.0.0   
+docker ps    
+docker attach   < name / ID >
+
+docker exec -it < pod ID >  sh  ---> shell of pod 
+  hostname -i  --> to know IP
+
+
+  when we expose a pod then it generate new  service in the container and provide a IP  for it to use service and access to it publicly 
+
+  TYPES of SERVICES
+
+    1. Nodeport   2. Clusterip  3. Loadbalancer 
+
+  kubectl get svc 
+
+  svc works as load balancer in K8S   like hAproxy  and Ngnix
+
+  kubectl run myweb --image=vimal13/apache-webserver-php
+  kubectl exec -it myweb --bash -->  get bash of above pod 
+  kubectl expose pod myweb --type=Nodeport    --port=80
+  kubectl delete all --all    ---> deletes everything in the cluster or node
+
+
+
+  4. 
+
