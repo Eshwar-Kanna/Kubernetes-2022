@@ -1,0 +1,62 @@
+
+
+
+Kubernetes replace the monitoring team who monitor and manage the servers to be up 100% and not to crash 
+if the server crashes it create sa copy of it instantly
+SWARM , MARATHON , RENCHER are the similar tools as K8S
+container cluster launch the server when it goes down 
+Replicas is the feature of  K8S . to manage the clients it launch copy of it based on no. of clients
+
+*  Minikube is the installer of  K8S
+minikube.exe   download for windows and install 
+cd  c:\programfiles\kubernetes\minikube 
+
+minikube.exe start 
+
+
+=> kubernetes doesnot launch the container it connect to container engine   and ask to launch  ( here its docker )
+
+
+    kubectl.exe   cluster-info    ---> provides the entire cluster information
+
+if the command doesnot works download the command and paste in the same path where we are runninf from   else setup the path in env to run from anypath
+
+to login into minikube shell
+
+    go to the VM launched in Virtual Box and use the credentials    user -->  docker   password --->  tcuser
+
+by default docker is installed in minikube 
+
+kubernetes add the features to containers  launched by user   
+    docker     --- >  image : container
+    kubernetes --- >  image : pod
+
+kubectl.exe get pods
+kubectl.exe create  deployment myweb --image=httpd
+kubectl get pods 
+kubectl delete pod myweb
+kubectl get pods
+
+-------- here the pod stil exist since we launched deployment and it relaunches the pods when it is lost
+
+-->   to launch multiple similar pods we use replicas  increasing replicas is said to be scale out  and decreasing is scale in 
+
+kubectl.exe  scale deploy myweb  --replicas=5
+kubectl get pods
+
+minikube.exe  ip   --> displays IP ( node IP )
+
+kubectl expose deploy myweb --port=80 --type=Nodeport          ---> it exposes our container to public 
+
+kubectl.exe   get service
+
+http://<nodeip>:<port>        ----> we will access to the server
+
+  the server run even deleting the pod  since the pod gets relaunches and the request is allocated to the existing pod within the replicas
+
+  
+
+
+
+
+    
