@@ -1,0 +1,73 @@
+
+
+
+YAML  -- >  yet another markable language
+
+It is a standard pattern between client and server
+
+copy te cmdline in ENV variabkes to run from any path
+
+1.  first_pod.yml
+
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        - name: "mypod1"
+      spec:
+        containers:
+        - name: "myc1"
+          image: "httpd"
+
+
+kubectl apply -f   first_pod.yml
+
+
+-->  to launch another pod. change spec and apply the file 
+
+  kubectl delete pods --all    ---- > deletes all the pods we have 
+
+
+2.  pod_label.yml
+
+
+(i)   
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: "pod1"
+        labels:
+        team: team1
+        region: IN
+        env: QA
+      spec:
+        containers:
+        - name: "c1"
+          image: "httpd"
+
+
+  (ii)
+
+
+  apiVersion: v1
+      kind: Pod
+      metadata:
+        name: "pod2"
+        labels:
+        team: team2
+        region: USA
+        env: dev
+      spec:
+        containers:
+        - name: "c2"
+          image: "httpd"
+
+
+
+kubectl create -f pod_label.yml
+kubectl get pods --show-labels
+kubectl get pods --selector "team=team1 , dc=IN"   --show-labels
+
+
+-l  or --selector   are of two patterns    1. equality based (=)   2. set based (!=)
+
+
