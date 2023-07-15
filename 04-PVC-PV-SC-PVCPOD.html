@@ -1,0 +1,24 @@
+
+      NFS server    --->   to learn storage in K8S
+
+
+     
+                                                      Storage
+              -----------------------------------------------------------------------------------
+              -----------------------------------------------------------------------------------
+
+
+1. empheremal ( temparory )    2.  persistent ( permanent  )
+
+->  the data that is part of image is permanent  but whatever we created in container will loss when we terminate the OS
+
+in baseOS 
+
+        mkdir /mydata        and  add some files into it 
+        podman run   -dit  --name  w5  -v  /mydata:/var/www/images        vimal13/apache
+
+this is called mounting the storage
+
+
+
+      
