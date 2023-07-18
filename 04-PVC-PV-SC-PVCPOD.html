@@ -20,5 +20,117 @@ in baseOS
 this is called mounting the storage
 
 
+We can mount multiple folders but should use  -v   for each mount
 
+-->   to execute ls command in the folder we mounted disable the firewall .ie    setenforce  0
+
+
+PVC -- >  persistent volume claim
+PV  -->  persistent volume
+SC --> storage Class
+
+
+kubectl get sc -o yaml   > mysc.yml
+
+vim mysc.yml    from here we can refer  and create new storage class
+
+
+8. mypvc.yml
+
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+      name: mypvc
+spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+            requests:
+                  storage: 1G
+
+
+
+kubectl create -f mypvc.yml
+
+kubectl get pvc   and  kubectl describe pvc < pvc name >
+
+            
+=>  pvc is created here and in  a pending state  
+
+      as soon as we create the PV with in  the same storage class it will bind the PV  to the PVC 
+
+9.  mypv.yml
+
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+            name: mypv
+      spec:
+            accessModes:
+            - ReadWriteOnce
+            capacity:
+                  storage: 1G
+                  hostpath: 
+                        path: /mnt/kanna
+
+
+
+here we use the pvc  for  a pod    then pv to bind to the pod 
+
+      10.  pvc_pod.yml
+
+      apiVersion: v1
+      kind: Pod
+      metadata: 
+            name: pvcpod
+      spec: 
+            volumes:
+            - name: p1
+              persisentVolumeClaim:
+                  cliamName: mypvc
+            containers:
+            - name: "myc"
+              image: "vimal13/apache-webserver-php"
+              volumeMounts:
+              - mountpath: /var/www/html
+                name: p1
+
+
+when we create the pod with above script and add some date to the folder html and if the pod gets deleted and recreated with same secifications the data exists
       
+      
+
+      kubectl get storageclass
+
+if the  SC is running . when a PVC is created then instantly PV is autocreated within the storage class and bind it to the PVC  this process is known as provisioned
+
+
+      provisioner is  a program that runs in POD
+
+      kubectl get sc 
+
+      kubectl describe sc standard      we  can edit the SC from auto creating the PV  when we specify the storage class name by changing the value to false 
+
+
+      8.1 mypvc.yml   ( adding storage class to code 8  )
+
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+      name: mypvc
+spec:
+      storageClassName: "standard"
+      accessModes:
+      - ReadWriteOnce
+      resources:
+            requests:
+                  storage: 1G
+
+
+      The storageclass can take  storage  in different formats  .  1, pendrive , 2. hostpath, 3. AWS cloud , 4. NFS  and many more
+
+
+
+
