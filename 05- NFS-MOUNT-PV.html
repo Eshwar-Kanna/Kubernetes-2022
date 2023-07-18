@@ -1,0 +1,117 @@
+
+
+Here we configure   NFS-server to the stotage class pf minikube so that whenever the pvc is created  the storageclass contact to nfs.
+  and autocreate the pv and bind it to the pvc
+
+
+=> kubernetes has default provisioner as localhost but can use many other like aws-ebs , nfs.
+
+to make connection between minikube and rhel8
+
+in RHEL8  enable adopter2 and set to host only 1st to NAT
+
+to change NFS-server in rhel8 OS
+
+mkdir /mynfs
+cd /mynfs
+vim /etc/exports
+
+    /mynfs   *(rw, no_root_squash)
+
+    systemctl restart nfs_server.service
+    systemctl enable nfs_server.service
+
+
+refer kubernetes.github document for nfs yaml script 
+
+copy the code of nfs.yml   in notepad 
+
+11. nfs.yml
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nfs-client-provisioner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+          image: registry.k8s.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: k8s-sigs.io/nfs-subdir-external-provisioner
+            - name: NFS_SERVER
+              value: <YOUR NFS SERVER HOSTNAME>
+            - name: NFS_PATH
+              value: /var/nfs
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: <YOUR NFS SERVER HOSTNAME>
+            path: /var/nfs
+
+
+
+  edit values  of keys
+
+  value of server  -  ip ( ipconfig enpos8 )
+  value of path  -  /mynfs  ( update  in both  env and volumes )
+  mountpath of containers -  /mekube  ( to whichever path of container you desire to mount )
+
+go to minikube  cluster or shell 
+
+create a folder /mekube  ( since we dont have this folder in the pod or the container )
+
+sudo su - root
+mkdir /mekube 
+exit
+
+but when usually setup the mountpath with an existing folder in the container such as /var/www/html  for httpd server pod 
+
+kubectl create -f nfs.yml
+
+copy the code of storage class in same document  and apply the file with no changes 
+
+
+              
+12. sc_nfs.yml
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-client
+provisioner: k8s-sigs.io/nfs-subdir-external-provisioner # or choose another name, must match deployment's env PROVISIONER_NAME'
+parameters:
+  pathPattern: "${.PVC.namespace}/${.PVC.annotations.nfs.io/storage-path}" # waits for nfs.io/storage-path annotation, if not specified will accept as empty string.
+  onDelete: delete
+
+              
+
+kubectl create -f sc_nfs.yml   --->  for creating the nfs storageclass
+
+
+initially we dont have any pods or deployments relating the nfs but after creating the nfs sc  we get pods and deployments of nfs
+
+
+
+  FYR :
+
+              https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
+
+
+
+    
