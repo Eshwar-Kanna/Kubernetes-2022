@@ -1,0 +1,114 @@
+
+
+
+                                        Namespace
+
+
+
+      It is the limit or area created by Admin Team  of k8s  server  for using   or setting the resources  and Security 
+
+                kubectl get ns
+                kubectl create ns  teama
+
+     =>  To run  any pod  in the teama  add   namespace: teama  in metadata  of  yml.code 
+     =>  To run  any program ( fb.insta )  we use Authentication  Password  or key 
+
+     once we provide  the password then it generates a key locally not to repeat again
+
+     kubectl cluster-info     ---- ip of k8s
+     kubectl get pods  -n teama
+     kubectl config  view  ---- info  of all k8s  clusters
+
+ =>  To authenticate the server  we use  config  in which we create context with user and password / key  and  this config  is used while creating  server to Authenticate
+
+=>  In k8s server internally a program runs ie. API server  which takes  the requests of k8s user and send to the specific  program in it  which relates  to requrest
+
+                  kubectl  config  current_context
+
+=>  The rhel8  ping  to k8s  since  the second  adopter  network is set to host - only
+
+
+
+Download  kubectl command in rhel8 through   link  
+
+=>  Copy the code  of yum  configuration  in kubernetes  document  
+
+        yum install kubectl -y 
+
+connect the k8s server to rhel8  by   
+    kubectl get pods   < url from cluster-info > 
+
+          here it prompts for password  ie  certificate in this case 
+
+      we transfer the client.key  , client.crt   and ca.crt  from  windows  to linux    path :   c:\user\.minikube\profiles\minikube
+      We use  Winscp  here  to transfer from one OS to another OS
+
+      By this way we can use  the same k8s  cluster  from  another OS 
+
+  =>  Any program  we run  with http and https we have  to provide the login details for every change even for refresh so to avoid this we use config.file
+
+       creating config.file   in  rhel8
+
+      kubectl config view  > minikube.config
+
+      vim minikube.config 
+
+
+      apiVersion: v1
+      kind: config
+      clusters:
+      - cluster:
+          certificate-authority: /root/ca.crt
+          server: < cluster url >
+        name: mycluster
+            
+      contexts:
+      - context:
+            cluster: mycluster
+            user: kanna
+        name: myc2
+
+      current-context: myc2
+      preferences: {}
+      users:
+      - user:
+        name: kanna
+            client-certificate: /root/client.crt
+            client-key: /root/client.key
+
+
+
+     cmd method 
+
+            kubectl get pods --server < url>  --client-key /root/client.key  --client-certificate  /root/client.crt   --certificate-authority  /root/ca.crt
+
+
+    => to skip the credentials using each time as above  we use  config file here its ( mykube.config ) 
+              
+    kubectl get pods --kubeconfig  mykube.config
+
+   To make mykube.config as the default config file   
+
+              cp  mykube.config   /root/.kube/config
+
+    =>  the above process is pre created  in minikube  to confirm 
+
+              minikube ssh
+              sudo su - root
+              cd /etc/kubernetes
+
+              vi admin.conf
+
+      User  Management 
+
+
+              instead giving all the admin   priviliges to the user. we manage the user policies 
+
+    =>  we authenticate using  password  and private key 
+    =>  Authenticating using  private key  or certificate we need cryptography 
+ 
+              certificate  =>   1. symmetric  ( same key for encode and decode )    2. Asymmetric key  ( pub key, priv key ) diff key for encode and decode .
+
+      =>  we use public key / private key for  Authentication of Data  and encrypt or decryption  of  data
+
+              
