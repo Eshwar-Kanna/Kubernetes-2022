@@ -1,0 +1,48 @@
+
+
+                                          Design Patterns
+
+                    1. sidecar     2. Adapter    3. Ambassader
+
+
+          splunk  --  log management tool
+
+  => whenever we connect to a server through internet  the server creates a log and store it in  a file 
+
+  => Log is a historical record that has the details of the client server conected at an instant  
+  => It is not good practice to run multiple  programs in one OS since if the OS gets hacked  all the programs  get effected
+  => but to run multiple programs we use a pattern or tool like splunk which creates a agent program to the main server
+  => Agent program is a helper Program 
+  => To control or manage two or more containers simultaneously we launch them in single pod.
+  => The combination of pods in which each pod has multiple containers is called Multi-container Tier  app 
+
+
+  1.  side car 
+        main program  --> log  --> Agent program  ---> splunk  
+        log format   --->  the pattern in which log details created 
+        ETL  Operation ---  Extract  , Transform  , Load 
+
+
+  2. Adaptor 
+         
+        main program  --> log -->  change log format  --> Agent Program  -->  Splunk
+
+3.  Ambassdor
+
+      Main Program  --> Proxie  --> Data Bases  
+
+      Proxie it switches to the particualr database as per the requirement 
+
+
+
+CKS ---> Exam on Container Security 
+
+
+
+                                            * User Capabilities 
+
+    Running the container with a Limited user instead root
+
+    CAP_SYS_ADMIN   ---->  is a capability   info in document  
+
+We use Docker run --cap-drop  < power >  -it centos    -----> to disable the capability           
