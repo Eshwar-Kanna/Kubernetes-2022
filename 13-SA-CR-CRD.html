@@ -1,0 +1,152 @@
+
+
+                                      Service Account
+
+  => every user has a user ID 
+
+          id -u <username>
+
+    To change hostname  -->       hostname kanna.com
+
+  => the root user inside a container doesnot have all root access of OS  to get such capabilities 
+
+            podman run --priviliged  -it centos
+            podman run --user=0   -it  centos                  ( 0 indicates root )
+            podman run --user=1001  -it  centos                ( capability of user 1001 )
+
+
+    To remove particular  capability  of  a user  we use 
+
+            podman run --cap-drop  net-raw   -it centos
+
+    strace is the command that tells what are the resources that a command using behind
+
+
+    17.  seccontext.yml
+
+            apiVersion: v1
+            kind: Pod
+            metadata: 
+              name: mypod
+            spec:
+              containers:
+              - name: myc1
+                image: vimal13/apache-webserver-php
+              securityContext:
+                runAsUser: 1002
+                capabilities: 
+                    drop: ['NET-RAW']
+
+
+
+    kubectl create -f seccontext.yml
+
+  => The pod get crashed since the user we provided doesnot have that capabilities 
+
+  => The pod get created if we comment the runAsUser line since bydefault it takes root user
+
+
+
+
+=>  By providing the access token we create a user for special role 
+
+            kubectl get sa -A
+            kubectl get sa default  -o yaml
+            kubectl get secrets
+            kubectl get secrets <name>  -o yaml
+
+
+              cd /var/run/secrets/kubernets.io/serviceaccount/
+              ls
+              cat token
+              t=$(cat token)
+              echo $t
+
+
+              curl  < url of API >  < service >  ---  fail
+
+              curl -H  " Authorization: Bearer $t "  < url > secure    
+
+                        the above format is for curl command and the other have different format 
+
+          kubectl create serviceaccount  mysa 
+          kubectl describe sa mysa
+          kubectl get secrets
+
+
+
+      =>  to bind service account  to any pod we use the same code  of rolebinding  but  inplace of user  kind  ( subject  )  we use ServiceAccount  not in kind 
+
+
+                            *  CR  and CRD  
+
+
+            kubectl api-resources      --- list all resources of k8s the resources are of two types
+
+
+                1. out of Namespace
+                2. interior of Namespace
+
+
+           CR -> custom resources  
+           CRD -> custom resource Define
+
+                      the above resources are to create our own custom resources similar to   POD , SVC , news ,mails 
+
+
+          17. crt.yml
+
+                
+                
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: stars.example.crd.com
+spec:
+  group: example.crd.com
+  scope: Namespaced
+  names:
+    kind: Star
+    listKind: StarList
+    plural: stars
+    singular: star
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      required: ["spec"]
+      properties:
+        spec:
+          required: ["type","location"]
+          properties:
+            type:
+              type: "string"
+              minimum: 1
+            location:
+              type: "string"
+              minimum: 1
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+
+
+
+kubectl apply -f crt.yml
+
+kubectl describe crd stars.example.crd.com
+
+
+
+
+apiVersion: "example.crd.com/v1alpha1"
+kind: "Star"
+metadata:
+  name: "sun"
+  namespace: solar-examples
+spec:
+  type: "G"
+  location: "Galaxy"
+
+
+                
