@@ -1,0 +1,74 @@
+
+
+                                              System Design 
+
+
+                            /search     -------   /search  svc    ---------  pod1      ,  pod2   ,  pod3
+
+     Client   ---------     /mail      -------    /mail   svc     ---------  pod1      ,  pod2   ,  pod3
+
+      www.google.com        /drive      -------   /search  svc    ---------  pod1      ,  pod2   ,  pod3
+
+    
+      |------- host------|------ Routing--------|------ svc -----| ------------  pod -------------|
+
+
+
+      => ingress controller is the program  the read network traffic from user and specifies the svc ( path ) and connect  to  respective pod in which  the server created / runing
+
+            minikube addons enable  ingress
+            kubectl get ns
+            kubectl get pods -n ingress-ngnix
+
+            kubectl create deployment  mysearchd   --image=httpd
+            kubectl expose deployment mysearchd --type=Nodeport  --port 80
+            kubectl  get svc mysearchd
+                  curl <http:// minikube ip : port >
+
+            create a deployment with  name mymaild  with image  vimal13-apache    and expose 
+
+
+        => connecting to server  using  hostname instead IP 
+                      in windows 
+                          c:\\  windows  \ system32  \ drivers \ etc \ hosts 
+
+                      open with notepad and add hostname  ip 
+                    ex : www.kanna.com    192.168.10.12
+
+          aim is to create a ingress rule  such that  with the same hostname and depending on path given.  it should connect to respective  server relate to path 
+
+                      ex:  www.kanna.com/httpd   ---> httpd
+                           www.kanna.com/apache  ---> apache
+
+
+
+
+        15.    ingress.yml
+
+                    apiVersion: networking.k8s.io/v1
+                    kind: Ingress
+                    metadata:
+                        name: mywebpath
+                    spec:
+                        rules:
+                        - host: www.kanna.com
+                          http:
+                            paths:
+                            - path: /search
+                              pathType: prefix
+                              backend:
+                                service:
+                                  name: mysearchd
+                                  port:
+                                    number: 80
+
+
+        kubectl create -f  ingress.yml
+        kubectl get ingress
+
+        add no.of paths ex:  /searchd  ,  /maild  , /apache  , /httpd    and apply changes  
+
+                    the process works might be error in image  repeat using other images if not works
+
+                    
+              
