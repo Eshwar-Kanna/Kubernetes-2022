@@ -1,0 +1,69 @@
+
+
+                                          Network policies 
+
+
+
+Securing the server or the network packets
+    ex: firewall
+=> In networking, ingress refers to the process of data entering a network. 
+        It involves the flow of data packets from an external network or source into the internal network.
+=> Networking egress is the process of data leaving a network or a system.
+    It involves the flow of data packets from the internal network to an external network or destination.
+
+kubectl create deployment myd --image=httpd
+kubectl get pods
+kubectl expose deploy myd --type=Nodeport  --port=80
+kubectl get svc
+kubectl get pods --show-labels
+
+
+* creating Ingress
+
+16.   firewall.yml
+
+              apiVersion: networking.k8s.io/v1
+              kind: NetworkPolicy
+              metadata:
+                name: test-network-policy
+                namespace: default
+              spec:
+                podSelector:
+                  matchLabels:
+                    app: myd
+                policyTypes:
+                  - Ingress
+                  - Egress
+                ingress:
+                  - from:
+                      - ipBlock:
+                          cidr: 172.17.0.0/16
+                          except:
+                            - 172.17.1.0/24
+                      - namespaceSelector:
+                          matchLabels:
+                            project: myproject
+                      - podSelector:
+                          matchLabels:
+                            role: frontend
+                    ports:
+                      - protocol: TCP
+                        port: 80
+                egress:
+                  - to:
+                      - ipBlock:
+                          cidr: 10.0.0.0/24
+                    ports:
+                      - protocol: TCP
+                        port: 80
+
+
+
+
+kubectl create -f firewall.yml
+
+=> when this networkpolicy is created. only port 80 in the pod with labels frontend in a namespace myproject is accessible to the IPs within the range 172.17.0.0/16 except 172.17.1.0/24
+          from outer connection and not beyond it  and we can only access to the port 80 in the range 10.0.0.0/24. 
+
+
+          
