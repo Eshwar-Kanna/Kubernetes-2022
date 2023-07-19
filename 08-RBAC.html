@@ -1,0 +1,86 @@
+
+                                                        RBAC -  Rloe Based Access Control
+
+    =>  the user is given certain role when logging into the cluster and provide access to that particular resources 
+
+                            kubectl get clusterrole
+                            kubectl describe clusterrole   <role>
+
+
+    => go to putty login with minikube Ip    user : docker    password :  tcuser
+
+            cd /var/lib/minikube/certs
+
+            openssl  genrsa -out eric.key  1024
+            openssl req -new -key eric.key  -out eric.csr  -subj  '/CN=eric/O=tech'
+            openssl x509 -req -in eric.csr  -out eric.crt     -CAkey  ca.key  -CA ca.crt  -CAcreateserial
+
+
+              kubectl create  ns testing 
+
+    => to assign eric  user in testing namespace we should create  Role  and Rolebinding 
+
+        Copy all keys and cert of eric  to windows in minikube folder  
+
+          kubectl config  set-credentials  eric  --client-key='\path\eric.key'  --client-certificate='\path\eric.crt'
+          kubectl config set-context ericconf  --user=eric  --cluster=minikube 
+          kubectl config use-context ericconf
+
+
+
+
+12.    myrole.yml
+
+
+              apiVersion: rbac.authorization.k8s.io/v1
+              kind: Role
+              metadata:
+                name: monitor-role
+                namespace: testing
+              rules:
+                -apiGroups: [""]
+                 resources: ["pods"]
+                 verbs: ["list"]
+                 
+                              
+    kubectl apply -f myrole.yml      --> of not works 
+    
+    kubectl  config use-context  minikube  ( admin context )
+    kubectl apply -f myrole.yml
+
+
+                                *  Role Binding 
+
+
+  13.    rolebinding.yml
+
+             apiVersion: rbac.authorization.k8s.io/v1
+             kind: RoleBinding
+             metadata:
+               name: eric-user-binding
+               namespace: testing
+            subjects:
+              - kind: user
+                name: eric
+                apiGroup: rbac.authorization.k8s.io
+
+            roleRef:
+                kind: Role
+                name: monitor-role
+                apiGroup: rbac.authorization.k8s.io
+
+
+      kubectl apply -f rolebinding.yml
+
+      kubectl get rolebinding -n testing
+
+=> if we can verify that from the user eric we can only list pods in testing environment and not any other action and also we cant access to any other namespace hence it works
+
+ =>  in the role whatever resources  and verbs  we  provide  that access are given to the user
+
+                              
+
+        
+
+                              
+          
