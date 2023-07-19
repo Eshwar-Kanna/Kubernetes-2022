@@ -1,0 +1,111 @@
+
+
+
+                                                  ConfigMap
+
+
+      configuration file path   :   /etc/httpd/conf.d
+
+      => we use PVC to make data permanent but to make a single file permanent we use configmap
+
+      cd /var/www/html  
+      ls
+
+      cd /etc/httpd/conf.d
+      ls
+
+      netstat  -tnlp  | grep  httpd
+      vi kanna.conf
+            listen 1234
+
+      systemctl restart  httpd  ( setenforce 0  if any error )
+
+      netstat -tnlp  | grep httpd     ---> here the port 1234 is added 
+
+
+      kubectl get cm
+
+      kubectl create deploy myweb --image=httpd
+      kubectl create deploy myweb1 --image=httpd
+      kubectl exec -it < pod of myweb1 >  --bash
+
+        cd /var/www/html
+        cd /etc/httpd/conf.d
+        netstat  -tnlp | grep httpd
+
+        vi kanna.conf
+
+            Listen 1234
+
+    in windows  command prompt 
+
+        notepad  myweb.txt/myweb.conf
+
+                listen 2222
+        kubectl create configmap mywebcm  --from-file myweb.conf
+
+        kubectl get cm
+
+
+
+  14.  pod_conf.yml
+
+        apiVersion: v1
+        kind: Pod
+        metadata: 
+          name: configpod
+        spec:
+          containers:
+          - name: configos
+            image: httpd
+          volumes:
+          - configMap:
+              name: mywebcm
+            name: mycm
+          volumeMounts:
+          - mountpath: /etc/httpd/conf.d
+            name: mycm
+
+
+  kubectl create -f pod_conf.yml
+  kubectl get pods
+  kubectl exec -it  pod < podname>   --bash
+
+    cd /etc/httpd/conf.d/
+    ls
+
+here we could find the mywebcm configfile which is mounted and we can change it using edit command 
+
+kubectl delete pod conpod 
+    pod gets deleted but not configmap check it in get cm
+
+kubectl edit cm mywebcm     ----->  to edit  port 
+
+    in this  myweb.conf   if we need to add multiple lines we need to add | for each EOF  
+
+    We can also create configmap using  yaml file 
+
+
+configmap.yml
+
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: cm2
+    data:
+      lw.conf:
+        listen 1234
+
+
+  when we need to add multiple lines for a config file we use |
+
+        ex:    
+
+    myweb.conf: |
+        listen 1234
+        abcghvhvbhv
+        bjzmbjcnxdcdc
+
+
+    
+    
