@@ -111,4 +111,37 @@ connect the k8s server to rhel8  by
 
       =>  we use public key / private key for  Authentication of Data  and encrypt or decryption  of  data
 
+        To create a private key 
+
+                minikube ssh  
+                sudo su - root
+              cd /etc/kubernetes 
+              openssl genrsa -out kanna.key   1024 
+
+        To create a certificate 
+
+              openssl -req -new -key  kanna.key  -out kanna.csr  < prompt for info  provide and create >
+
+              this csr should be verified by CA and convert it to cert   we have ca in the path  cd /var/lib/minikube/certs
+
+                openssl x509  -req  -in  kanna.csr  -CA ca.crt  -CAkey  ca.key  -CAcreateserial  -out kanna.crt -days 1000    
+
+      => copy the key and certificate to windows  in    \.minikube\profiles\minikube    using winscp 
+
+                kubectl config  set-credentials  kanna  --client-certificate=kanna.crt   --client-key=kanna.key
+
+      => provide complete path for key and certificate if the certs and  config in different directories  
+
+      => create a context  
+
+                kubectl config  set-context  myc1  --user=kanna   --cluster=minikube
+                kubectl config-view
+     to make myc1 as default  context
+                kubectl config use-context  myc1
+
+      => since this context is login  using  a user  instead admin it maynot access to all resources
+                
+  
+
+                
               
